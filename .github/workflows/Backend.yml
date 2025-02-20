@@ -9,7 +9,7 @@ jobs:
       
     steps:
       - name: Login to Scaleway
-        run : docker login rg.fr-par.scw.cloud/namespace-edgar-andre -u nologin --password-stdin <<< "${{ secret.API_SECRET_KEY }}"
+        run : docker login rg.fr-par.scw.cloud/namespace-edgar-andre -u nologin --password-stdin <<< "${{ secrets.API_SECRET_KEY }}"
       
       - name: Build
         run : docker build -t devops-dev-b-back ./back
@@ -27,8 +27,8 @@ jobs:
       - name: connect to scw cli
         uses: scaleway/action-scw@v0.0.2
         with:
-          access-key: ${{ secret.API_ACCESS_KEY }}
-          secret-key: ${{ secret.API_SECRET_KEY }}
+          access-key: ${{ secrets.API_ACCESS_KEY }}
+          secret-key: ${{ secrets.API_SECRET_KEY }}
           default-project-id: 72e49469-ee5f-4f2f-b2b5-9c17b99d0f28
           default-organization-id: 909c2e48-12fc-47bf-b8ef-360a60b07500
           save-config : true
