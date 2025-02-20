@@ -1,0 +1,27 @@
+# Build stage
+FROM node:22-alpine AS builder
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm install --production 
+
+COPY . .
+
+RUN npx prisma generate dev 
+
+# Production stage
+FROM node:22-alpine
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app .
+
+# Install openssl and clean up
+RUN apk add --no-cache openssl
+
+EXPOSE 3000
+
+CMD ["node", "./server.js"]
