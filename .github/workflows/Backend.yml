@@ -1,0 +1,39 @@
+name: Deploy Backend API
+on: 
+  push:
+    branches:
+    - main
+jobs: 
+  Build-Push:
+    runs-on: ubuntu:latest 
+      
+    steps:
+      - name: Login to Scaleway
+        run : docker login rg.fr-par.scw.cloud/namespace-edgar-andre -u nologin --password-stdin <<< "${{secret.API_SECRET_KEY}}"
+      
+      - name: Build
+        run : docker build -t devops-dev-b-back ./back
+      
+      - name: Add correct tag
+        run : docker tag devops-dev-b-back:latest rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest 
+        
+      - name: Push to Scaleway
+        run : docker push rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest
+          
+  Deploy:
+    runs-on: ubuntu:latest 
+    
+    steps:
+      - name: connect to scw cli
+        uses: scaleway/action-scw@v0.0.2
+        with:
+          access-key: ${{secret.API_ACCESS_KEY}}
+          secret-key: ${{secret.API_SECRET_KEY}}
+          default-project-id: 72e49469-ee5f-4f2f-b2b5-9c17b99d0f28
+          default-organization-id: 909c2e48-12fc-47bf-b8ef-360a60b07500
+          save-config : true
+
+      - name: Deploy container on Scaleway
+        run : scw container container create name=deployed-backend namespace-id=c61504f2-6166-4b9d-81de-1318393afa6f registry-image=rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest
+           
+          
