@@ -8,9 +8,6 @@ jobs:
   Build-Push-Backend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
       - name: Login to Scaleway
         run: echo "${{ secrets.API_SECRET_KEY }}" | docker login rg.fr-par.scw.cloud/namespace-edgar-andre -u nologin --password-stdin
 
