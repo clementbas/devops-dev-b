@@ -44,6 +44,7 @@ jobs:
           RESULT=$(scw container container create name=deployed-backend \
             namespace-id=c61504f2-6166-4b9d-81de-1318393afa6f \
             registry-image=rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest \
+            port=8080 \
             -o json)
           
           echo "Container response: $RESULT"
@@ -92,5 +93,6 @@ jobs:
         run: |
           scw container container create name=deployed-frontend \
           namespace-id=c61504f2-6166-4b9d-81de-1318393afa6f \
-          registry-image=rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-front:latest
+          registry-image=rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-front:latest \
+          port=3000
 
