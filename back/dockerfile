@@ -1,5 +1,5 @@
 # Build stage
-FROM node:22-alpine AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /usr/src/app
 
@@ -23,7 +23,7 @@ COPY --from=builder /usr/src/app .
 
 # Install openssl and clean up
 RUN apk add --no-cache openssl
-
+RUN npm rebuild prisma
 RUN npx prisma generate dev 
 
 EXPOSE 3000
