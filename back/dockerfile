@@ -5,6 +5,10 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+ENV DATABASE_URL="file:./file.db"
+ENV JWT_SECRET="your_secret"
+ENV BCRYPT_SALT_ROUNDS=10
+
 # Install only production dependencies
 RUN npm install --production 
 
