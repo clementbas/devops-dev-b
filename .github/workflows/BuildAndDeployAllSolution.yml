@@ -47,7 +47,7 @@ jobs:
             -o json)
           
           echo "Container response: $RESULT"
-          URL=$(echo "$RESULT" | jq -r '.domain_name' data.json)
+          URL=$(echo "$RESULT" | jq -r '.domain_name')
           
           echo "container_url=$URL" >> "$GITHUB_ENV"
           echo "container_url=$URL" >> "$GITHUB_OUTPUT"
