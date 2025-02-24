@@ -14,8 +14,6 @@ RUN npm install --production
 
 COPY . .
 
-RUN npx prisma generate dev 
-
 # Production stage
 FROM node:22-alpine
 
@@ -25,6 +23,8 @@ COPY --from=builder /usr/src/app .
 
 # Install openssl and clean up
 RUN apk add --no-cache openssl
+
+RUN npx prisma generate dev 
 
 EXPOSE 3000
 
