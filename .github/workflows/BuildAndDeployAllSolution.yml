@@ -68,7 +68,7 @@ jobs:
       - name: Build Frontend
         run: |
           echo "Utilisation de l'URL du backend: ${{ needs.Deploy-Backend.outputs.backend_url }}"
-          docker build -t devops-dev-b-front --build-arg VITE_API_URL="${{ needs.Deploy-Backend.outputs.backend_url }}" ./front
+          docker build -t devops-dev-b-front --build-arg VITE_API_URL="https://${{ needs.Deploy-Backend.outputs.backend_url }}/" ./front
 
       - name: Tag & Push Frontend Image
         run: |
