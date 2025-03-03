@@ -19,7 +19,7 @@ jobs:
 
       - name: Tag & Push Backend Image
         run: |
-          docker tag devops-dev-b-back:latest rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest
+          docker tag devops-dev-b-back:latest rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest --build-arg DEFAULT_ADMIN_PASSWORD=${{ secrets.ADMIN_SECRET }}
           docker push rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest
 
   Deploy-Backend:
