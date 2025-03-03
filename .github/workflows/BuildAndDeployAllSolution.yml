@@ -15,11 +15,11 @@ jobs:
         run: echo "${{ secrets.API_SECRET_KEY }}" | docker login rg.fr-par.scw.cloud/namespace-edgar-andre -u nologin --password-stdin
 
       - name: Build Backend
-        run: docker build -t devops-dev-b-back ./back
+        run: docker build -t devops-dev-b-back ./back --build-arg DEFAULT_ADMIN_PASSWORD=${{ secrets.ADMIN_SECRET }}
 
       - name: Tag & Push Backend Image
         run: |
-          docker tag devops-dev-b-back:latest rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest --build-arg DEFAULT_ADMIN_PASSWORD=${{ secrets.ADMIN_SECRET }}
+          docker tag devops-dev-b-back:latest rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest 
           docker push rg.fr-par.scw.cloud/namespace-edgar-andre/devops-dev-b-back:latest
 
   Deploy-Backend:
