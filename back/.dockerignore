@@ -1,4 +1,1 @@
-prisma/migrations/
-prisma/file.db
-node_modules/
-.env
+node_modules

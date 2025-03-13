@@ -1,0 +1,79 @@
+name: Deploy to Scaleway
+
+on:
+  push:
+    branches:
+      - main  # Runs on push to the main branch
+
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Scaleway CLI
+        run: |
+          curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh
+
+      - name: Login to Scaleway
+        run: |
+          scw init  secret-key=${{ secrets.API_SECRET_KEY }} access-key=${{ secrets.API_ACCESS_KEY }} organization-id=${{ secrets.API_ORGA_ID }} project-id=${{ secrets.API_PROJECT_ID }} region=fr-par 
+
+      - name: Login to Scaleway Container Registry
+        run: |
+          echo ${{ secrets.API_SECRET_KEY }} | docker login rg.fr-par.scw.cloud/namespace-bas-clement -u nologin --password-stdin
+
+      # Step 1: Build & Push Backend
+      - name: Build & Push Backend to Scaleway Container Registry
+        run: |
+          docker build -t my-backend ./back
+          docker tag my-backend:latest rg.fr-par.scw.cloud/namespace-bas-clement/my-backend:latest
+          docker push rg.fr-par.scw.cloud/namespace-bas-clement/my-backend:latest
+
+      # Step 2: Deploy Backend on Scaleway using `scw`
+      - name: Deploy Backend to Scaleway 
+        run: |
+          scw container container create name=backend-container \
+            namespace-id=e3260950-7c83-4fe9-94b9-b5db9d22ea34 \
+            max-scale=1 \
+            cpu-limit=100 \
+            memory-limit=128 \
+            registry-image=rg.fr-par.scw.cloud/namespace-bas-clement/my-backend:latest \
+            port=3000
+
+      - name: Get Backend Container ID and Endpoint
+        run: |
+          # List all containers and filter by the name "backend-container"
+          BACKEND_CONTAINER_ID=$(scw container container list | grep "backend-container" | awk '{print $1}')
+          
+          # Get the domain name for the container using its ID
+          BACKEND_DOMAIN=$(scw container container get $BACKEND_CONTAINER_ID | grep "DomainName" | awk '{print $2}')
+          
+          # Output the retrieved domain name to verify
+          echo "Backend Domain Name: $BACKEND_DOMAIN"
+          
+          # Set the DomainName as a GitHub Environment variable for use in future steps
+          echo "BACKEND_DOMAIN=$BACKEND_DOMAIN" >> $GITHUB_ENV
+
+      # Step 4: Build & Push Frontend
+      - name: Build & Push Frontend to Scaleway Container Registry
+        run: |
+          docker build -t my-frontend ./front
+          docker tag my-frontend:latest rg.fr-par.scw.cloud/namespace-bas-clement/my-frontend:latest
+          docker push rg.fr-par.scw.cloud/namespace-bas-clement/my-frontend:latest
+
+      # Step 5: Deploy Frontend on Scaleway using `scw`
+      - name: Deploy Backend to Scaleway 
+        run: |
+          scw container container create name=frontend-container \
+            namespace-id=e3260950-7c83-4fe9-94b9-b5db9d22ea34 \
+            max-scale=1 \
+            cpu-limit=100 \
+            memory-limit=128 \
+            registry-image=rg.fr-par.scw.cloud/namespace-bas-clement/my-frontend:latest \
+            port=80 \
+            environment-variables.VITE_API_URL=https://$BACKEND_DOMAIN
